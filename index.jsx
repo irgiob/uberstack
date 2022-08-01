@@ -73,7 +73,7 @@ export const render = ({output, error}) => {
 	     				marginTop: stackData.y
 	     			})}`}
 	     		>
-	     			{stacks[key].sort((a,b) => a.id > b.id).map((win, index) => {
+	     			{stacks[key].filter((x) => x['is-visible']).sort((a,b) => a.id > b.id).map((win, index) => {
 	     				return <div 
 	     					key={index}
 	     					className={`${css({ 
