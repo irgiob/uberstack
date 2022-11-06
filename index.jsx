@@ -1,10 +1,12 @@
-import { css } from "uebersicht"
+import { css, run, React } from "uebersicht"
 
+const hideIcon = false
 const tileSize = "50px"
 const tileSpacing = "15px"
 const tileGap = "10px"
 const borderRadius = "10px"
 const iconSize = "45px"
+const pillSize = "7px"
 
 const groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
@@ -15,8 +17,11 @@ const groupBy = function(xs, key) {
 
 
 export const command = `
-	# query windows for current space and return them
+	# query windows for current space data
 	yabai=$(yabai -m query --windows --space);
+
+	# query type of space
+	type=$(yabai -m query --spaces --space | jq .type);
 	
 	# generate cached app icon if doesn't exist yet
 	jq -r '.[] | (.pid|tostring) + " " + .app' <<< "$yabai" |
@@ -39,20 +44,66 @@ export const command = `
 		fi;
 	done;
 
+	# add event listeners
+	yabai -m signal --add event=space_changed action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack on space change"
+	yabai -m signal --add event=display_changed action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack on display focus change"
+	yabai -m signal --add event=window_focused action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack when focused application changes"
+	yabai -m signal --add event=application_front_switched action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack when front application switched application changes"
+	yabai -m signal --add event=window_destroyed action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack when an application window is closed"
+	yabai -m signal --add event=window_resized action="osascript -e 'tell application id \\\"tracesOf.Uebersicht\\\" to refresh widget id \\\"euberstack-index-jsx\\\"'" label="Refresh euberstack when a window is resized"
+
 	# return space data
-	echo $yabai;
+	type=\$(yabai -m query --spaces --space | jq .type) && [ \$type = '\"bsp\"' ] && echo $yabai;
 `;
 
-export const refreshFrequency = 1000; 
+export const refreshFrequency = false; 
+
+const StackItem = ({key, win, hideIcon}) => {
+	const [hovered, setHovered] = React.useState(false)
+	return (
+		<div 
+			key={key}
+			onClick={() => run(`yabai -m window --focus ${win.id}`)}
+			onMouseLeave={() => setHovered(false)} 
+			onMouseEnter={() => setHovered(true)}
+			className={`
+				${css({ 
+					width: hideIcon ? pillSize : tileSize,
+					height: tileSize,
+					marginBottom: tileSpacing,
+					borderRadius: borderRadius,
+					background: 'white',
+				})} 
+				${win['has-focus'] ? css({ opacity: 1 }) : css({ opacity: 0.25 })}
+				${hovered && !win['has-focus'] ? css({opacity: 0.5}) : css({})}
+			`}
+		>	
+			{!hideIcon && <img 
+				src={`euberstack/cache/${win.app}.png`} 
+				className={`${css({ 
+					width: iconSize,
+					height: iconSize,
+					marginLeft: `calc((${tileSize} - ${iconSize})/2)`,
+					marginTop: `calc((${tileSize} - ${iconSize})/2)`,
+				})}`}
+			/>}
+		</div>
+	)
+}
 
 export const render = ({output, error}) => {
-	//return <p>{output}</p>
-
-	// get all windows in current space grouped by stack
-	const data = groupBy(JSON.parse(output).map(x => ({ ...x, stack: JSON.stringify(x.frame) })), 'stack')
-	
-	// filter out all stacks of one
-	const stacks = Object.keys(data)
+	if (!output) return null;
+	try {
+		// get all windows in current space grouped by stack
+		const data = groupBy(
+			JSON.parse(output)
+				.filter(x => x['is-minimized'] == false && x.frame.w != 1)
+				.map(x => ({ ...x, stack: JSON.stringify(x.frame) })),
+			'stack'
+		)
+		
+		// filter out all stacks of one
+		const stacks = Object.keys(data)
 	    .filter((key) => data[key].length > 1)
 	    .reduce((obj, key) => {
 	        return Object.assign(obj, {
@@ -60,43 +111,30 @@ export const render = ({output, error}) => {
 	        })
   	}, {})
 
-	return error ? (
-		<div>Something went wrong: <strong>{String(error)}</strong></div>
-	) : (
-		<div>
+		return error ? (
+			<div>Something went wrong: <strong>{String(error)}</strong></div>
+		) : (
+			<div>
 	     	{Object.keys(stacks).map((key, index) => {
 	     		const stackData = JSON.parse(key)
 	     		return <div
 	     			key={index}
 	     			className={`${css({ 
-	     				marginLeft: stackData.x, //`calc(${stackData.x}px - ${tileSize} - ${tileGap})`,
-	     				marginTop: stackData.y
+	     				marginLeft: `calc(${stackData.x}px - ${hideIcon ? pillSize : tileSize} - ${tileGap})`,
+	     				marginTop: stackData.y,
+	     				position: "absolute",
 	     			})}`}
 	     		>
-	     			{stacks[key].filter((x) => x['is-visible']).sort((a,b) => a.id > b.id).map((win, index) => {
-	     				return <div 
-	     					key={index}
-	     					className={`${css({ 
-			     				width: tileSize,
-			     				height: tileSize,
-			     				marginBottom: tileSpacing,
-			     				borderRadius: borderRadius,
-			     				background: 'white',
-			     			})} ${win['has-focus'] ? css({ opacity: 1 }) : css({ opacity: 0.25 })}`}
-	     				>	
-	     					<img 
-	     						src={`euberstack/cache/${win.app}.png`} 
-	     						className={`${css({ 
-				     				width: iconSize,
-				     				height: iconSize,
-				     				marginLeft: `calc((${tileSize} - ${iconSize})/2)`,
-				     				marginTop: `calc((${tileSize} - ${iconSize})/2)`,
-				     			})}`}
-	     					/>
-	     				</div>
-	     			})}
+	     			{stacks[key]
+	     				.filter((x) => x['is-visible'])
+	     				.sort((a,b) => a.id > b.id)
+	     				.map((win, index) => <StackItem key={index} win={win} hideIcon={hideIcon}/>)
+	     			}
 	     		</div>
 	     	})}
 	    </div>
-	)
+		)
+	} catch (e) {
+		return null
+	}
 }
