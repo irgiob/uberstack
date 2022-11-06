@@ -32,7 +32,7 @@ const StackItem = ({key, win}) => {
 			className={stackItemStyle}
 		>	
 			{!hideIcon && <img 
-				src={`euberstack/cache/${win.app}.png`} 
+				src={`uberstack/cache/${win.app}.png`} 
 				className={stackItemImageStyle}
 			/>}
 		</div>

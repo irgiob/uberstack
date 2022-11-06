@@ -3,7 +3,7 @@ import { containerMargin } from "./lib/settings.js"
 import parseStacks from "./lib/parseStacks.js"
 import StackItem from "./lib/StackItem.jsx"
 
-export const command = "bash euberstack/lib/command.sh";
+export const command = "bash uberstack/lib/command.sh";
 
 export const refreshFrequency = false; 
 
