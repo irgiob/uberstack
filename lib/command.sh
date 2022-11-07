@@ -34,4 +34,4 @@ yabai -m signal --add event=window_destroyed action="osascript -e 'tell applicat
 yabai -m signal --add event=window_resized action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack when a window is resized"
 
 # return space data
-type=$(yabai -m query --spaces --space | jq .type) && [ $type = '"bsp"' ] && echo $yabai;
+[ $type = '"bsp"' ] && echo $yabai;
