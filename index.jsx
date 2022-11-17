@@ -1,11 +1,11 @@
 import { css } from "uebersicht"
-import { containerMargin, shell, yabai, jq } from "./lib/settings.js"
+import { containerMargin, shell, yabai, jq, refreshRate, onlyShowOnBSP} from "./lib/settings.js"
 import parseStacks from "./lib/parseStacks.js"
 import StackItem from "./lib/StackItem.jsx"
 
-export const command = `${shell} uberstack/lib/command.sh ${yabai} ${jq}`;
+export const command = `${shell} uberstack/lib/command.sh ${yabai} ${jq} ${refreshRate} ${onlyShowOnBSP}`;
 
-export const refreshFrequency = false; 
+export const refreshFrequency = refreshRate; 
 
 export const render = ({output, error}) => {
 	if (!output) return null;
