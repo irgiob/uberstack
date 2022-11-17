@@ -23,7 +23,8 @@ It goes without saying, but if you want a mucher higher quality version of this 
 2. You also need to install [jq](https://stedolan.github.io/jq/) as a command line dependency, which can be done with [Homebrew](https://brew.sh/) using the command `brew install jq`
 3. Clone or download this repository into your Übersicht widget folder (when dowloading make sure to unzip to a folder)
 4. Ensure the widget folder name is uberstack, as any other folder name will not work
-5. That's it!
+5. Run `which yabai` and `which jq` in the terminal and check if the outputs match the values of the variables `yabai` and `jq` within `lib/settings.js` respectively. If not, change the variable values to match the output of the `which` command.
+6. That's it!
 
 ## How to setup stacks
 
@@ -50,4 +51,4 @@ There are many other keybinds that can be made along with these to create a grea
 - Inside `lib/settings.js` are constants which can be changed to alter the size and positioning of the Überstack tiles
 - There are also additional settings for a more minimalist version with no icon
 - The repo is currently set up so that the tiles only appear on spaces set to the "bsp" layout with Yabai. To disable this and display Uberstack on full single stack spaces, go into `lib/command.sh` and replace the last line with just `echo $yabai;`
-- The repo is also currently set up to refresh the widget using event signals from Yabai, which causes updates to the widget to lag slightly. This was done for performance reasons so the widget doesn't have to constantly update when nothing is happening. If you're happy to sacrifice some performance to make Überstack react more quickly and responsivly to window changes, you can do so by commenting out all the event listeners in `lib/command.sh` (lines that start with `yabai -m signal`) and by changing the `refreshFrequency` variable in `index.jsx` from `false` to a number representing how often you want the widget to refresh in milliseconds (for example `export const refreshFrequency = 100;` will cause the widget to refresh every tenth of a second)
+- The repo is also currently set up to refresh the widget using event signals from Yabai, which causes updates to the widget to lag slightly. This was done for performance reasons so the widget doesn't have to constantly update when nothing is happening. If you're happy to sacrifice some performance to make Überstack react more quickly and responsivly to window changes, you can do so by commenting out all the event listeners in `lib/command.sh` (lines that start with `yabai_path -m signal`) and by changing the `refreshFrequency` variable in `index.jsx` from `false` to a number representing how often you want the widget to refresh in milliseconds (for example `export const refreshFrequency = 100;` will cause the widget to refresh every tenth of a second)

@@ -1,7 +1,7 @@
 import { css, run, React } from "uebersicht"
-import { hideIcon, tileSize, tileSpacing, borderRadius, iconSize, pillSize } from "./settings"
+import { hideIcon, tileSize, tileSpacing, borderRadius, iconSize, pillSize, yabai } from "./settings"
 
-const StackItem = ({key, win}) => {
+const StackItem = ({ win }) => {
 	const [hovered, setHovered] = React.useState(false)
 
 	const stackItemStyle = `
@@ -24,9 +24,8 @@ const StackItem = ({key, win}) => {
 	})}`
 	
 	return (
-		<div 
-			key={key}
-			onClick={() => run(`yabai -m window --focus ${win.id}`)}
+		<div
+			onClick={() => run(`${yabai} -m window --focus ${win.id}`)}
 			onMouseLeave={() => setHovered(false)} 
 			onMouseEnter={() => setHovered(true)}
 			className={stackItemStyle}
