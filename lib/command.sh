@@ -36,12 +36,12 @@ done;
 
 # add event listeners
 if [ $refresh_rate = 'false' ]; then
-	$yabai_path -m signal --add event=space_changed action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack on space change"
-	$yabai_path -m signal --add event=display_changed action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack on display focus change"
-	$yabai_path -m signal --add event=window_focused action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack when focused application changes"
-	$yabai_path -m signal --add event=application_front_switched action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack when front application switched application changes"
-	$yabai_path -m signal --add event=window_destroyed action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack when an application window is closed"
-	$yabai_path -m signal --add event=window_resized action="osascript -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"'" label="Refresh uberstack when a window is resized"
+	$yabai_path -m signal --add event=space_changed action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack on space change"
+	$yabai_path -m signal --add event=display_changed action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack on display focus change"
+	$yabai_path -m signal --add event=window_focused action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack when focused application changes"
+	$yabai_path -m signal --add event=application_front_switched action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack when front application switched application changes"
+	$yabai_path -m signal --add event=window_destroyed action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack when an application window is closed"
+	$yabai_path -m signal --add event=window_resized action="osascript -e 'if application id \"tracesOf.Uebersicht\" is running then' -e 'tell application id \"tracesOf.Uebersicht\" to refresh widget id \"uberstack-index-jsx\"' -e 'end if'" label="Refresh uberstack when a window is resized"
 fi;
 
 # return space data
